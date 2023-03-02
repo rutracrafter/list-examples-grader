@@ -19,7 +19,6 @@ cp ../lib/hamcrest-core-1.3.jar ./lib
 cp ../lib/junit-4.13.2.jar ./lib
 cp ../TestListExamples.java ./
 
-set -e
 javac ListExamples.java
 if [[ $? -ne 0 ]]
 then
@@ -35,17 +34,17 @@ fi
 
 java -cp $CPATH org.junit.runner.JUnitCore TestListExamples >out.txt 2>&1
 
-LINE_NO=2
+cat out.txt | grep -e "FAILURES"
+if [[ $? -ne 0 ]]
+then
+    echo "Good job, you passed all the tests!"
+else
+    cat out.txt | grep -e "Tests run:" | cut -d\, -f1 > tests-ran.txt
+    cat out.txt | grep -e "Tests run:" | cut -d\, -f2 > tests-failed.txt
 
-i=0
-#for line in out.txt
-#do
-#	(( i+=1 ))
-#	if [[ $i -eq 2 ]]
-#	then
-#		echo $line
-#	fi
-#done
+    RAN=`cat tests-ran.txt | cut -d ' ' -f3`
+    FAILED=`cat tests-failed.txt | cut -d ' ' -f4`
 
-sed -n 2p out.txt
-
+    echo "Your grade is: " "$RAN"/"$(($RAN + $FAILED))"
+    cat out.txt
+fi
